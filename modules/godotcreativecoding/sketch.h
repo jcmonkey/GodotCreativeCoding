@@ -37,8 +37,8 @@ public:
 	void size(float x, float y);
 	void clear();
 	void background(Color color);
-	float screen_width();
-	float screen_height();
+	float width();
+	float height();
 
 	// shape functions
 	//void point(float x, float y, Color color);

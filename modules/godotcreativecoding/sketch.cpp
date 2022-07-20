@@ -11,8 +11,8 @@ void Sketch::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("draw_off"), &Sketch::draw_off);
 	ClassDB::bind_method(D_METHOD("is_drawing"), &Sketch::is_drawing);
 	ClassDB::bind_method(D_METHOD("size"), &Sketch::size);
-	ClassDB::bind_method(D_METHOD("screen_width"), &Sketch::screen_width);
-	ClassDB::bind_method(D_METHOD("screen_height"), &Sketch::screen_height);
+	ClassDB::bind_method(D_METHOD("width"), &Sketch::width);
+	ClassDB::bind_method(D_METHOD("height"), &Sketch::height);
 }
 
 void Sketch::size(float x, float y) {
@@ -24,14 +24,14 @@ void Sketch::size(float x, float y) {
 	//HEIGHT = y;
 }
 
-float Sketch::screen_height() {
+float Sketch::height() {
 	//return ProjectSettings::get_singleton()->get_setting("display/window/size/height");
 	//return HEIGHT;
 	Vector2 size = OS::get_singleton()->get_window_size();
 	return size.y;
 }
 
-float Sketch::screen_width() {
+float Sketch::width() {
 	//return ProjectSettings::get_singleton()->get_setting("display/window/size/width");
 	//return WIDTH;
 	Vector2 size = OS::get_singleton()->get_window_size();
