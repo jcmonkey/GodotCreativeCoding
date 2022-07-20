@@ -24,11 +24,13 @@
     }
 
     float Sketch::screen_height(){
-        return ProjectSettings::get_singleton()->get_setting("display/window/size/height");
+        //return ProjectSettings::get_singleton()->get_setting("display/window/size/height");
+        return HEIGHT;
     }
 
     float Sketch::screen_width(){
-        return ProjectSettings::get_singleton()->get_setting("display/window/size/width"); 
+        //return ProjectSettings::get_singleton()->get_setting("display/window/size/width"); 
+        return WIDTH;
     }
 
     void Sketch::draw_on(){_candraw = true;}
