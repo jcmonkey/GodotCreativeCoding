@@ -1,4 +1,6 @@
-# Godot Engine
+# Godot Engine with Creative Coding module 
+
+# THIS IS A WORK IN PROGRESS 
 
 <p align="center">
   <a href="https://godotengine.org">
