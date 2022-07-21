@@ -10,6 +10,7 @@
 #include "servers/visual/visual_server_canvas.h"
 #include "servers/visual_server.h"
 #include "string.h"
+#include "core/math/random_number_generator.h"
 
 class Sketch : public Node2D {
 	GDCLASS(Sketch, Node2D);
@@ -19,6 +20,8 @@ class Sketch : public Node2D {
 	RID _ci_rid;
 
 	Color _color;
+
+	RandomNumberGenerator _r;
 
 protected:
 	static void _bind_methods();
@@ -42,15 +45,17 @@ public:
 	void background(Color color);
 	float width();
 	float height();
+	void random_color();
+	float random_x();
+	float random_y();
+	float map(float value, float istart, float istop, float ostart, float ostop);
 
 	// shape functions
-	//void point(float x, float y, Color color);
+
 	void point(float x, float y);
 
-	//void circle(float x, float y, float size, Color color);
 	void circle(float x, float y, float size);
 
-	//void line(float x1, float y1, float x2, float y2, Color color, float width);
 	void line(float x1, float y1, float x2, float y2, float width);
 
 	//void _ready();
@@ -72,8 +77,6 @@ public:
 	Sketch() {
 		// turn drawing on
 		draw_on();
-
-		_color = Color(255,255,255);
 		
 		// create the canvas_item canvas
 		_ci_rid = VS::get_singleton()->canvas_item_create();
