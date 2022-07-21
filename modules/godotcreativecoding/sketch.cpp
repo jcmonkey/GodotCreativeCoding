@@ -1,9 +1,9 @@
 #include "sketch.h"
 
 void Sketch::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("point", "pos", "color"), &Sketch::point);
-	ClassDB::bind_method(D_METHOD("circle", "pos", "size", "color"), &Sketch::circle);
-	ClassDB::bind_method(D_METHOD("line", "pos1", "pos2", "color", "width"), &Sketch::line);
+	ClassDB::bind_method(D_METHOD("point", "x", "y"), &Sketch::point);
+	ClassDB::bind_method(D_METHOD("circle", "x", "y", "size"), &Sketch::circle);
+	ClassDB::bind_method(D_METHOD("line", "x1", "y1", "x2", "y2", "width"), &Sketch::line);
 	ClassDB::bind_method(D_METHOD("get_rid"), &Sketch::get_rid);
 	ClassDB::bind_method(D_METHOD("clear"), &Sketch::clear);
 	ClassDB::bind_method(D_METHOD("background"), &Sketch::background);
@@ -11,8 +11,13 @@ void Sketch::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("draw_off"), &Sketch::draw_off);
 	ClassDB::bind_method(D_METHOD("is_drawing"), &Sketch::is_drawing);
 	ClassDB::bind_method(D_METHOD("size"), &Sketch::size);
+	ClassDB::bind_method(D_METHOD("stroke","rgb"), &Sketch::stroke);
 	ClassDB::bind_method(D_METHOD("width"), &Sketch::width);
 	ClassDB::bind_method(D_METHOD("height"), &Sketch::height);
+}
+
+void Sketch::stroke(Color rgb){
+	_color = rgb;
 }
 
 void Sketch::size(float x, float y) {
@@ -70,54 +75,32 @@ void Sketch::background(Color color) {
 
 //--------------------------------------------------------------------------------------
 
-//void Sketch::point(float x, float y, Color color = Color(255, 255, 255, 255)) {
-//	if (is_drawing()) {
-//		Vector2 pos = Vector2(x, y);
-//		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, 1, color);
-//	}
-//}
-
-void Sketch::point(Vector2 pos, Color color = Color(255, 255, 255, 255)) {
+void Sketch::point(float x, float y) {
 	if (is_drawing()) {
-		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, 1, color);
+		Point2 pos = Point2(x,y);
+		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, 1, _color);
 	}
 }
 
-//void Sketch::circle(float x, float y, float size, Color color = Color(255, 255, 255, 255)) {
-//	if (is_drawing()) {
-//		Vector2 pos = Vector2(x, y);
-//		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, size, color);
-//	}
-//}
-
-void Sketch::circle(Vector2 pos, float size, Color color = Color(255, 255, 255, 255)) {
+void Sketch::circle(float x, float y, float size) {
 	if (is_drawing()) {
-		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, size, color);
+		Point2 pos = Point2(x,y);
+		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, size, _color);
 	}
 }
 
-/*
-void Sketch::line(float x1, float y1, float x2, float y2, Color color, float width) {
+void Sketch::line(float x1, float y1, float x2, float y2, float width) {
 	if (is_drawing()) {
 		Vector2 pos1 = Vector2(x1, y1);
 		Vector2 pos2 = Vector2(x2, y2);
 		VS::get_singleton()->canvas_item_add_line(get_rid(),
 				pos1,
 				pos2,
-				color,
+				_color,
 				width, // width of line
 				true); // antialiasing enabled
 	}
 }
-*/
-void Sketch::line(Vector2 pos1, Vector2 pos2, Color color, float width) {
-	if (is_drawing()) {
-		VS::get_singleton()->canvas_item_add_line(get_rid(),
-				pos1,
-				pos2, color,
-				width, // width of line
-				true); // antialiasing enabled
-	}
-}
+
 
 //--------------------------------------------------------------------------------------

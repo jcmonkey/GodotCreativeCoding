@@ -18,6 +18,8 @@ class Sketch : public Node2D {
 
 	RID _ci_rid;
 
+	Color _color;
+
 protected:
 	static void _bind_methods();
 
@@ -35,6 +37,7 @@ public:
 
 	// utility functions
 	void size(float x, float y);
+	void stroke(Color rgb);
 	void clear();
 	void background(Color color);
 	float width();
@@ -42,13 +45,13 @@ public:
 
 	// shape functions
 	//void point(float x, float y, Color color);
-	void point(Vector2 pos, Color color);
+	void point(float x, float y);
 
 	//void circle(float x, float y, float size, Color color);
-	void circle(Vector2 pos, float size, Color color);
+	void circle(float x, float y, float size);
 
 	//void line(float x1, float y1, float x2, float y2, Color color, float width);
-	void line(Vector2 pos1, Vector2 pos2, Color color, float width);
+	void line(float x1, float y1, float x2, float y2, float width);
 
 	//void _ready();
 	//void _process();
@@ -70,9 +73,8 @@ public:
 		// turn drawing on
 		draw_on();
 
-		//WIDTH = ProjectSettings::get_singleton()->get_setting("display/window/size/width");
-		//HEIGHT = ProjectSettings::get_singleton()->get_setting("display/window/size/height");
-
+		_color = Color(255,255,255);
+		
 		// create the canvas_item canvas
 		_ci_rid = VS::get_singleton()->canvas_item_create();
 		// set the ci_rid parent to our canvas_item
