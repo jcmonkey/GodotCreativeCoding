@@ -11,6 +11,7 @@
 #include "servers/visual_server.h"
 #include "string.h"
 #include "core/math/random_number_generator.h"
+#include "core/math/rect2.h"
 
 class Sketch : public Node2D {
 	GDCLASS(Sketch, Node2D);
@@ -40,7 +41,7 @@ public:
 
 	// utility functions
 	void size(float x, float y);
-	void stroke(Color rgb);
+	void stroke(Color color);
 	void clear();
 	void background(Color color);
 	float width();
@@ -57,6 +58,8 @@ public:
 	void circle(float x, float y, float size);
 
 	void line(float x1, float y1, float x2, float y2, float width);
+
+	void rect(float x, float y, float width, float height, bool center);
 
 	//void _ready();
 	//void _process();
@@ -75,6 +78,8 @@ public:
 	//}
 
 	Sketch() {
+		ProjectSettings::get_singleton()->set_setting("display/window/size/resizable",false);
+
 		// turn drawing on
 		draw_on();
 		

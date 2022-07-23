@@ -20,8 +20,8 @@ float Sketch::random_y(){
 	return _r.randi_range(0,height());
 }
 
-void Sketch::stroke(Color rgb){
-	_color = rgb;
+void Sketch::stroke(Color color){
+	_color = color;
 }
 
 void Sketch::size(float x, float y) {
@@ -73,8 +73,8 @@ void Sketch::clear() {
 	VS::get_singleton()->canvas_item_clear(get_rid());
 }
 
-void Sketch::background(Color c) {
-	VS::get_singleton()->set_default_clear_color(c);
+void Sketch::background(Color color) {
+	VS::get_singleton()->set_default_clear_color(color);
 }
 
 float Sketch::map(float value, float istart, float istop, float ostart, float ostop) {
@@ -109,25 +109,43 @@ void Sketch::line(float x1, float y1, float x2, float y2, float width) {
 	}
 }
 
+void Sketch::rect(float x, float y, float width, float height,bool center = false){
+	Rect2 r;
+	Vector2 pos;
+	Vector2 size = Vector2(width,height);
+	
+	// position based of center of rect, or upper left corner
+	if(center){
+		pos = Vector2(x - (width/2),y - (height/2));
+	}else{
+		pos = Vector2(x,y);
+	}
+
+	r.set_position(pos);
+	r.set_size(size);
+
+	VS::get_singleton()->canvas_item_add_rect (get_rid(), r, _color);
+}
 
 //--------------------------------------------------------------------------------------
 
 void Sketch::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("point"), &Sketch::point);
-	ClassDB::bind_method(D_METHOD("circle"), &Sketch::circle);
-	ClassDB::bind_method(D_METHOD("line"), &Sketch::line);
+	ClassDB::bind_method(D_METHOD("point","x","y"), &Sketch::point);
+	ClassDB::bind_method(D_METHOD("circle","x","y","size"), &Sketch::circle);
+	ClassDB::bind_method(D_METHOD("line","x1","y1","x2","y2","width"), &Sketch::line);
+	ClassDB::bind_method(D_METHOD("rect","x","y","length","width","center"), &Sketch::rect);
 	ClassDB::bind_method(D_METHOD("get_rid"), &Sketch::get_rid);
 	ClassDB::bind_method(D_METHOD("clear"), &Sketch::clear);
-	ClassDB::bind_method(D_METHOD("background"), &Sketch::background);
+	ClassDB::bind_method(D_METHOD("background","color"), &Sketch::background);
 	ClassDB::bind_method(D_METHOD("draw_on"), &Sketch::draw_on);
 	ClassDB::bind_method(D_METHOD("draw_off"), &Sketch::draw_off);
 	ClassDB::bind_method(D_METHOD("is_drawing"), &Sketch::is_drawing);
-	ClassDB::bind_method(D_METHOD("size"), &Sketch::size);
-	ClassDB::bind_method(D_METHOD("stroke","rgb"), &Sketch::stroke);
+	ClassDB::bind_method(D_METHOD("size","x","y"), &Sketch::size);
+	ClassDB::bind_method(D_METHOD("stroke","color"), &Sketch::stroke);
 	ClassDB::bind_method(D_METHOD("width"), &Sketch::width);
 	ClassDB::bind_method(D_METHOD("height"), &Sketch::height);
 	ClassDB::bind_method(D_METHOD("random_color"), &Sketch::random_color);
 	ClassDB::bind_method(D_METHOD("random_x"), &Sketch::random_x);
 	ClassDB::bind_method(D_METHOD("random_y"), &Sketch::random_y);
-	ClassDB::bind_method(D_METHOD("map"), &Sketch::map);
+	ClassDB::bind_method(D_METHOD("map","value","istart","istop","ostart","ostop"), &Sketch::map);
 }
