@@ -47,6 +47,7 @@ public:
 	float width();
 	float height();
 	void random_color();
+	Color r_random_color();
 	float random_x();
 	float random_y();
 	float map(float value, float istart, float istop, float ostart, float ostop);
@@ -60,6 +61,9 @@ public:
 	void line(float x1, float y1, float x2, float y2, float width);
 
 	void rect(float x, float y, float width, float height, bool center);
+
+	void polyline(Vector<Vector2> points,Vector<Color> colors, float width, bool antialiased);
+
 
 	//void _ready();
 	//void _process();
