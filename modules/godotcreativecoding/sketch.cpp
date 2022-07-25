@@ -31,7 +31,11 @@ float Sketch::random_y(){
 }
 
 void Sketch::stroke(Color color){
-	_color = color;
+	_stroke_color = color;
+}
+
+void Sketch::stroke_width(float width){
+	_stroke_width = width;
 }
 
 void Sketch::size(float x, float y) {
@@ -67,20 +71,33 @@ bool Sketch::is_drawing() {
 	return _candraw;
 }
 
-//void Sketch::_ready(){}
-//void Sketch::_process(){
-//    //print_line("updating!!");
-//   if (is_drawing()){
-//
-//    }
-//}
+void Sketch::fill(Color color){
+	_canfill = true;
+	_color = color;
+}
 
-RID Sketch::get_rid() {
-	return _ci_rid;
+void Sketch::no_fill(){
+	_canfill = false;
+}
+
+float Sketch::mouse_x(){
+	return _mouse_x;
+}
+
+float Sketch::mouse_y(){
+	return _mouse_y;
+}
+
+void Sketch::process(){
+	Vector2 mpos = OS::get_singleton()->get_mouse_position();
+	_mouse_x = mpos.x;
+	_mouse_y = mpos.y;
 }
 
 void Sketch::clear() {
-	VS::get_singleton()->canvas_item_clear(get_rid());
+	for(int i = 0; i<items.size(); i++){
+		VS::get_singleton()->canvas_item_clear(items[i]);
+	}
 }
 
 void Sketch::background(Color color) {
@@ -94,33 +111,86 @@ float Sketch::map(float value, float istart, float istop, float ostart, float os
 
 void Sketch::point(float x, float y) {
 	if (is_drawing()) {
+		RID ci_rid = VS::get_singleton()->canvas_item_create();
+		VS::get_singleton()->canvas_item_set_parent(ci_rid, get_canvas_item());
+		items.push_back(ci_rid);
+
 		Point2 pos = Point2(x,y);
-		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, 1, _color);
+		VS::get_singleton()->canvas_item_add_circle(ci_rid, pos, 1, _color);
 	}
 }
 
 void Sketch::circle(float x, float y, float size) {
 	if (is_drawing()) {
-		Point2 pos = Point2(x,y);
-		VS::get_singleton()->canvas_item_add_circle(get_rid(), pos, size, _color);
+		float steps = 2 * Math_PI/40;
+		// stroked circle rid
+		RID ci_rid = VS::get_singleton()->canvas_item_create();
+		VS::get_singleton()->canvas_item_set_parent(ci_rid, get_canvas_item());
+		items.push_back(ci_rid);
+		if(_canfill){
+			
+			// filled circle rid
+			RID ci_rid2 = VS::get_singleton()->canvas_item_create();
+			VS::get_singleton()->canvas_item_set_parent(ci_rid2, get_canvas_item());
+			items.push_back(ci_rid);
+
+			Point2 pos = Point2(x,y);
+			
+			circle_empty(ci_rid,x,y,size,steps);
+			
+			VS::get_singleton()->canvas_item_add_circle(ci_rid2, pos, size, _color);
+
+			VS::get_singleton()->canvas_item_set_z_index(ci_rid,1);
+			VS::get_singleton()->canvas_item_set_z_index(ci_rid2,0);
+		}else{
+			circle_empty(ci_rid,x,y,size,steps);
+		}
+		
 	}
+}
+
+// function for drawing the outline of a circle 
+void Sketch::circle_empty(RID ci_rid,float h, float k, float r, float step){
+	Vector<Vector2> points;
+	Vector<Color> colors;
+
+	for(float theta = 0; theta < 360; theta+=step){
+		float x = h + r * cos(theta);
+		float y = k - r * sin(theta);
+		
+		Vector2 pos = Vector2(x,y);
+
+		points.push_back(pos);
+		colors.push_back(_stroke_color);
+	}
+	// cheap hack to draw a stroke circle
+	VS::get_singleton()->canvas_item_add_polyline(ci_rid,points,colors,_stroke_width,true);
 }
 
 void Sketch::line(float x1, float y1, float x2, float y2, float width) {
 	if (is_drawing()) {
+		RID ci_rid = VS::get_singleton()->canvas_item_create();
+		VS::get_singleton()->canvas_item_set_parent(ci_rid, get_canvas_item());
+		items.push_back(ci_rid);
+
 		Vector2 pos1 = Vector2(x1, y1);
 		Vector2 pos2 = Vector2(x2, y2);
-		VS::get_singleton()->canvas_item_add_line(get_rid(),
+		
+		VS::get_singleton()->canvas_item_add_line(ci_rid,
 				pos1,
 				pos2,
 				_color,
-				width, // width of line
+				_stroke_width, // width of line
 				true); // antialiasing enabled
 	}
 }
 
 void Sketch::rect(float x, float y, float width, float height,bool center = false){
 	if(is_drawing()){
+		RID ci_rid = VS::get_singleton()->canvas_item_create();
+		VS::get_singleton()->canvas_item_set_parent(ci_rid, get_canvas_item());
+		items.push_back(ci_rid);
+
 		Rect2 r;
 		Vector2 pos;
 		Vector2 size = Vector2(width,height);
@@ -135,15 +205,21 @@ void Sketch::rect(float x, float y, float width, float height,bool center = fals
 		r.set_position(pos);
 		r.set_size(size);
 
-		VS::get_singleton()->canvas_item_add_rect (get_rid(), r, _color);
+		VS::get_singleton()->canvas_item_add_rect (ci_rid, r, _color);
 	}
 }
 
-void Sketch::polyline(Vector<Vector2> points,Vector<Color> colors, float width=1.0, bool antialiased = true){
+void Sketch::polyline(Vector<Vector2> points,Vector<Color> colors,bool antialiased = true){
 	if(is_drawing()){
-		VS::get_singleton()->canvas_item_add_polyline(get_rid(),points,colors,width,antialiased);
+		RID ci_rid = VS::get_singleton()->canvas_item_create();
+		VS::get_singleton()->canvas_item_set_parent(ci_rid, get_canvas_item());
+		items.push_back(ci_rid);
+
+		VS::get_singleton()->canvas_item_add_polyline(ci_rid,points,colors,_stroke_width,antialiased);
 	}
 }
+
+
 //--------------------------------------------------------------------------------------
 
 void Sketch::_bind_methods() {
@@ -151,15 +227,20 @@ void Sketch::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("circle","x","y","size"), &Sketch::circle);
 	ClassDB::bind_method(D_METHOD("line","x1","y1","x2","y2","width"), &Sketch::line);
 	ClassDB::bind_method(D_METHOD("rect","x","y","length","width","center"), &Sketch::rect);
-	ClassDB::bind_method(D_METHOD("polyline","points","colors","width","antialiased"), &Sketch::polyline);
-	ClassDB::bind_method(D_METHOD("get_rid"), &Sketch::get_rid);
+	ClassDB::bind_method(D_METHOD("polyline","points","colors","antialiased"), &Sketch::polyline);
 	ClassDB::bind_method(D_METHOD("clear"), &Sketch::clear);
+	ClassDB::bind_method(D_METHOD("process"), &Sketch::process);
 	ClassDB::bind_method(D_METHOD("background","color"), &Sketch::background);
 	ClassDB::bind_method(D_METHOD("draw_on"), &Sketch::draw_on);
 	ClassDB::bind_method(D_METHOD("draw_off"), &Sketch::draw_off);
+	ClassDB::bind_method(D_METHOD("mouse_x"), &Sketch::mouse_x);
+	ClassDB::bind_method(D_METHOD("mouse_y"), &Sketch::mouse_y);
 	ClassDB::bind_method(D_METHOD("is_drawing"), &Sketch::is_drawing);
+	ClassDB::bind_method(D_METHOD("fill","color"), &Sketch::fill);
+	ClassDB::bind_method(D_METHOD("no_fill"), &Sketch::no_fill);
 	ClassDB::bind_method(D_METHOD("size","x","y"), &Sketch::size);
 	ClassDB::bind_method(D_METHOD("stroke","color"), &Sketch::stroke);
+	ClassDB::bind_method(D_METHOD("stroke_width","width"), &Sketch::stroke_width);
 	ClassDB::bind_method(D_METHOD("width"), &Sketch::width);
 	ClassDB::bind_method(D_METHOD("height"), &Sketch::height);
 	ClassDB::bind_method(D_METHOD("random_color"), &Sketch::random_color);
