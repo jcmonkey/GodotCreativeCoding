@@ -72,11 +72,15 @@ public:
 	void point(float x, float y);
 
 	void circle(float x, float y, float size);
-	void circle_empty(RID ci_rid,float h, float k, float r, float step);
+	void circle_empty(float h, float k, float r);
 
 	void line(float x1, float y1, float x2, float y2, float width);
 
 	void rect(float x, float y, float width, float height, bool center);
+	void rect_empty(float ltx, float lty, 
+						float lbx, float lby,
+						float rtx, float rty, 
+						float rbx, float rby);
 
 	void polyline(Vector<Vector2> points,Vector<Color> colors,bool antialiased);
 
