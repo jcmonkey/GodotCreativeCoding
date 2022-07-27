@@ -203,6 +203,59 @@ void Sketch::circle_empty(float h, float k, float r){
 
 //-------------------------------------------------------
 
+void Sketch::ellipse(float x, float y, float width, float height) {
+	if (is_drawing()) {
+		
+		if(_canfill){
+			
+			// filled circle rid
+			RID ci_rid2 = VS::get_singleton()->canvas_item_create();
+			VS::get_singleton()->canvas_item_set_parent(ci_rid2, get_canvas_item());
+			items.push_back(ci_rid2);
+
+			Point2 pos = Point2(x,y);
+			
+			ellipse_empty(x,y,width,height);
+			
+			// draw ellipse here 
+			// need shader to draw in pixels inside ellipse stroke 
+			
+			VS::get_singleton()->canvas_item_set_z_index(ci_rid2,0);
+		}else{
+			ellipse_empty(x,y,width,height);
+		}
+		
+	}
+}
+
+//-------------------------------------------------------
+// function for drawing the outline of a ellipse 
+// not visible to users
+void Sketch::ellipse_empty(float h, float k, float width,float height){
+	RID ci_rid = VS::get_singleton()->canvas_item_create();
+	VS::get_singleton()->canvas_item_set_parent(ci_rid, get_canvas_item());
+	VS::get_singleton()->canvas_item_set_z_index(ci_rid,1);
+	items.push_back(ci_rid);
+	
+	Vector<Vector2> points;
+	Vector<Color> colors;
+
+	float step = 2 * Math_PI/40;
+	for(float theta = 0; theta < 360; theta+=step){
+		float x = h + height * cos(theta);
+		float y = k - width * sin(theta);
+		
+		Vector2 pos = Vector2(x,y);
+
+		points.push_back(pos);
+		colors.push_back(_stroke_color);
+	}
+	// cheap hack to draw a stroke circle
+	VS::get_singleton()->canvas_item_add_polyline(ci_rid,points,colors,_stroke_width,true);
+}
+
+//-------------------------------------------------------
+
 void Sketch::line(float x1, float y1, float x2, float y2, float width) {
 	if (is_drawing()) {
 		RID ci_rid = VS::get_singleton()->canvas_item_create();
@@ -318,6 +371,7 @@ void Sketch::polyline(Vector<Vector2> points,Vector<Color> colors,bool antialias
 void Sketch::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("point","x","y"), &Sketch::point);
 	ClassDB::bind_method(D_METHOD("circle","x","y","size"), &Sketch::circle);
+	ClassDB::bind_method(D_METHOD("ellipse","x","y","width","height"), &Sketch::ellipse);
 	ClassDB::bind_method(D_METHOD("line","x1","y1","x2","y2","width"), &Sketch::line);
 	ClassDB::bind_method(D_METHOD("rect","x","y","length","width","center"), &Sketch::rect);
 	ClassDB::bind_method(D_METHOD("polyline","points","colors","antialiased"), &Sketch::polyline);

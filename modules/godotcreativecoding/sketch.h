@@ -74,6 +74,9 @@ public:
 	void circle(float x, float y, float size);
 	void circle_empty(float h, float k, float r);
 
+	void ellipse(float x, float y, float width, float height);
+	void ellipse_empty(float h, float k, float width,float height);
+	
 	void line(float x1, float y1, float x2, float y2, float width);
 
 	void rect(float x, float y, float width, float height, bool center);
